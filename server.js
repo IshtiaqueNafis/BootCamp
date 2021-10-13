@@ -1,25 +1,37 @@
+//region base Files
 const express = require('express'); // this for express
 const dotenv = require("dotenv"); // this for dotNev
 const logger = require("./middleware/logger");
 const morgan = require('morgan'); // this is the logger
 const connectDB = require('./config/db')
+//endregion
 
+//region app --> uses express router
 const app = express(); // express is the router.
+//endregion
 
-//dev logging env
+
+
+//region dotenv.config({path}) --> connects to config files.
 dotenv.config({path: './config/config.env'}); /// this where the config is saved
-//route files
-const bootCamps = require('./routes/bootcamp');
+//endregion
 
 
+//region bootCamps --> this holds all the routes
+const bootCamps = require('./routes/bootcamp'); // this hold
+//endregion
+
+// this make use of devlopment.
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'))
 }
 
 
-//Mount Router
-app.use('/api/v1/bootcamps', bootCamps) ///api/v1/bootcamps will be the routes for all the current ones.
+// region app.use('/api/v1/bootcamps', bootCamps)
 
+// api/v1/bootcaamps was the route
+app.use('/api/v1/bootcamps', bootCamps) ///api/v1/bootcamps will be the routes for all the current ones.
+//endregion
 
 const PORT = process.env.PORT || 5000; //  means either this will run or  the other
 

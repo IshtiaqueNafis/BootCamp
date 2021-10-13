@@ -1,6 +1,8 @@
+//region base files
 const express = require('express')
-const router = express.Router();
+const router = express.Router(); //router is for routing
 const {getBootCamps, getBootCamp, deleteBootCamp, createBootCamp, updateBootCamp} = require('../controllers/bootcamps') // exporting all the functions.
+//endregion
 
 router.route('/')
         .get(getBootCamps) // this will be for getting all the bootcamps
