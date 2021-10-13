@@ -1,18 +1,25 @@
 const express = require('express'); // this for express
 const dotenv = require("dotenv"); // this for dotNev
-//region
+const logger = require("./middleware/logger");
+const morgan = require('morgan'); // this is the logger
 
-
-//endregion
-
-
-//route files
-const bootCamps = require('./routes/bootcamp')
-
-dotenv.config({path: './config/config.env'}); /// this where the config is saved
 
 const app = express(); // express is the router.
 
+//route files
+const bootCamps = require('./routes/bootcamp');
+
+
+
+dotenv.config({path: './config/config.env'}); /// this where the config is saved
+
+//dev logging env
+if(process.env.NODE_ENV==='development'){
+    app.use( morgan('dev'))
+}
+
+
+app.use(logger);
 //Mount Router
 app.use('/api/v1/bootcamps',bootCamps) ///api/v1/bootcamps will be the routes for all the current ones.
 
