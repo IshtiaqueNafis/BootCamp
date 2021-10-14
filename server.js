@@ -1,31 +1,34 @@
 //region base Files
 const express = require('express'); // this for express
 const dotenv = require("dotenv"); // this for dotNev
-const logger = require("./middleware/logger");
 const morgan = require('morgan'); // this is the logger
 const connectDB = require('./config/db')
 //endregion
 
 //region app --> uses express router
-const app = express(); // express is the router.
 //endregion
 
+dotenv.config({path: './config/config.env'}); /// this where the config is saved
+connectDB()
+const bootCamps = require('./routes/bootcamp'); // this hold
+const app = express(); // express is the router.
 
+app.use(express.json())
 
 //region dotenv.config({path}) --> connects to config files.
-dotenv.config({path: './config/config.env'}); /// this where the config is saved
 //endregion
 
 
 //region bootCamps --> this holds all the routes
-const bootCamps = require('./routes/bootcamp'); // this hold
 //endregion
 
 // this make use of devlopment.
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'))
 }
+//region body parser
 
+//endregion
 
 // region app.use('/api/v1/bootcamps', bootCamps)
 
