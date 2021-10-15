@@ -52,7 +52,7 @@ exports.createBootCamp = async (req, res, next) => {
         })
 
     } catch (err) {
-        next(new ErrorResponse(`unable to create bootcamp`, 400))
+        next(err)
     }
 }
 //endregion
