@@ -1,3 +1,4 @@
+const ErrorResponse = require('../utlis/errorresponse')
 const Bootcamp = require('../models/BootCamp')
 
 
@@ -15,7 +16,7 @@ exports.getBootCamps = async (req, res, next) => {
             data: bootCamps
         });
     } catch (err) {
-        next(err)
+        next(new ErrorResponse(`BootCamps not founds`, 400))
     }
 }
 //exports is used for exporting function
@@ -26,12 +27,15 @@ exports.getBootCamps = async (req, res, next) => {
 exports.getBootCamp = async (req, res, next) => {
     try {
         const bootCamp = await Bootcamp.findById(req.params.id)
+        if (!bootCamp) {
+            return next(new ErrorResponse(`BootCamp not found with id of ${req.params.id} `, 400));
+        }
         res.status(400).json({
             success: true,
             data: bootCamp
         })
     } catch (err) {
-        next(err)
+        next(new ErrorResponse(`BootCamp not found with id of ${req.params.id} `, 400));
     }
 }
 //endregion
@@ -48,7 +52,7 @@ exports.createBootCamp = async (req, res, next) => {
         })
 
     } catch (err) {
-        res.status(400).json({success: false})
+        next(new ErrorResponse(`unable to create bootcamp`, 400))
     }
 }
 //endregion
@@ -64,7 +68,7 @@ exports.updateBootCamp = async (req, res, next) => {
         }
         res.status(200).json({success: true, data: bootCamp});
     } catch (err) {
-        return res.status(400).json({success: false})
+        next(new ErrorResponse(`unable to update bootcamp`, 400))
     }
 
 }
@@ -83,7 +87,7 @@ exports.deleteBootCamp = async (req, res, next) => {
         res.status(200).json({success: true, data: {}})
     } catch (error) {
 
-        res.status(400).json({success: true})
+        next(new ErrorResponse(`no bootcamp  to delete with ${req.params.id}`, 400))
     }
 }
 //endregion
