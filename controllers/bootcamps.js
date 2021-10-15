@@ -7,9 +7,27 @@ const asyncHandler = require('../middleware/async')
 //region getBootCamps() --> get all bootcamps-->@route GET /api/v1/bootcamps-->acess  public
 exports.getBootCamps = asyncHandler(async (req, res, next) => {
     let query;
-    let queryStr = JSON.stringify(req.query); // req.query is coming from req.query
-    console.log(queryStr)
+
+
+    //copy req.query
+    const reqQuery = {...req.query}
+
+    //fileds to exclude
+    const removeFields = ['select', 'sort']; // array will have the following value which is select query.
+
+    //Loop over Remove fields and delete them from reqQuery
+    removeFields.forEach(param => delete reqQuery[param]);
+    // loop over reququery if it contains select remove it .
+
+    console.log(reqQuery)
+
+    //create query string
+    let queryStr = JSON.stringify(reqQuery); // req.query is coming from req.query
+
+
+    //create Operators ($GT,$ltg)
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+
     //region ****queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)****
     //
     /*
@@ -22,8 +40,25 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
      */
 
     //endregion
+
+
+    //finding resource
     query = Bootcamp.find(JSON.parse(queryStr)); // get the id based on query str
 
+    //SelectFields
+    if (req.query.select) {
+        const sortBy = req.query.select.split(',').join(' ') // if there is a comma turns into an array then combine into string with spaces
+        query = query.select(sortBy) // if a name is here it will only pass thoose things.
+    }
+
+
+    if (req.query.sort) {
+        const sortBy = req.query.sort.split(',').join(' ') // if there is a comma turns into an array then combine into string with spaces
+        query = query.sort(sortBy) // if a name is here it will only pass thoose things.
+    } else {
+        query = query.sort('-createdAt'); //- means in decendinbg order
+    }
+    //foinding query
     const bootCamps = await query;
 
 
