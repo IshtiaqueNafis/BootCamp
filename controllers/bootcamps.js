@@ -35,7 +35,7 @@ exports.getBootCamp = async (req, res, next) => {
             data: bootCamp
         })
     } catch (err) {
-        next(new ErrorResponse(`BootCamp not found with id of ${req.params.id} `, 400));
+        next(err);
     }
 }
 //endregion
@@ -64,11 +64,12 @@ exports.updateBootCamp = async (req, res, next) => {
 
         const bootCamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {new: true, runValidators: true});
         if (!bootCamp) {
-            return res.status(400).json({success: false}) //return has to be there to make it false.
+            return next(new ErrorResponse(`BootCamp not found with id of ${req.params.id} `, 400));
+
         }
         res.status(200).json({success: true, data: bootCamp});
     } catch (err) {
-        next(new ErrorResponse(`unable to update bootcamp`, 400))
+        next(err);
     }
 
 }
@@ -80,14 +81,14 @@ exports.deleteBootCamp = async (req, res, next) => {
 
     try {
 
-        const bootCamp = await Bootcamp.findByIdAndDelete(req.params.id)
+        const bootCamp = await Bootcamp.findByIdAndDelete(req.params.id);
         if (!bootCamp) {
-            return res.status(400).json({success: false})
+            return next(new ErrorResponse(`BootCamp not found with id of ${req.params.id} `, 400));
         }
         res.status(200).json({success: true, data: {}})
     } catch (error) {
 
-        next(new ErrorResponse(`no bootcamp  to delete with ${req.params.id}`, 400))
+        next(error);
     }
 }
 //endregion
