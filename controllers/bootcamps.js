@@ -13,7 +13,7 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
     const reqQuery = {...req.query}
 
     //fileds to exclude
-    const removeFields = ['select', 'sort']; // array will have the following value which is select query.
+    const removeFields = ['select', 'sort', 'page', 'limit',]; // array will have the following value which is select query.
 
     //Loop over Remove fields and delete them from reqQuery
     removeFields.forEach(param => delete reqQuery[param]);
@@ -51,21 +51,68 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
         query = query.select(sortBy) // if a name is here it will only pass thoose things.
     }
 
-
+    //sorting
     if (req.query.sort) {
         const sortBy = req.query.sort.split(',').join(' ') // if there is a comma turns into an array then combine into string with spaces
         query = query.sort(sortBy) // if a name is here it will only pass thoose things.
     } else {
         query = query.sort('-createdAt'); //- means in decendinbg order
     }
+
+    //const page
+    const page = parseInt(req.query.page, 10) || 1; // ususally parse int come by string.
+
+    const limit = parseInt(req.query.limit, 10) || 100; // ususally parse int come by string.
+
+    const startIndex = (page - 1) * limit; // start of the page. //0
+
+    const endIndex = page * limit; // this will show the end of page //1
+
+    //region ***page,limit,startIndex&endIndex explained***
+
+    /*
+    const page = parseInt(req.query.page, 10) || 1 --> by defualt page is 1 however it can be any page I would want it to be.
+     const limit = parseInt(req.query.limit, 10) || 100;  --> by default set to 100 however can be many page as possilbe.
+         const startIndex = (page - 1) * limit; //
+         lets say I am on page (1-1) * 1 -->0 index 2-->(2-1)*1 -->1 and so on its -1 here cause index always starrt from
+
+           const endIndex = page * limit; --> page is 1 and and limit is 1 endindex will be 1 if its 2 will be 2
+     */
+
+    //endregion
+
+    const total = await Bootcamp.countDocuments()
+
+    query = query.skip(startIndex).limit(limit);
+
     //foinding query
     const bootCamps = await query;
 
+    //pagination Result
+
+    const pagination = {};
+    if (endIndex < total) {
+        pagination.next = {
+            page: page + 1,
+            limit
+        }
+        //crates a nested object // { next: { page: 2 } }
+    }
+
+    if (startIndex > 0) {
+        pagination.prev = {
+            page: page - 1,
+            limit
+        }
+    }
+
+    console.log(pagination)
 
     res.status(200).json({
         success: true,
         count: bootCamps.length,
-        data: bootCamps
+        data: bootCamps,
+        pagination
     });
 });
 
