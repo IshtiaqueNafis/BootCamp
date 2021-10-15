@@ -2,6 +2,7 @@
 const express = require('express'); // this for express
 const dotenv = require("dotenv"); // this for dotNev
 const morgan = require('morgan'); // this is the logger
+const errorHandler = require('./middleware/error')
 const connectDB = require('./config/db')
 //endregion
 
@@ -15,12 +16,7 @@ const app = express(); // express is the router.
 
 app.use(express.json())
 
-//region dotenv.config({path}) --> connects to config files.
-//endregion
 
-
-//region bootCamps --> this holds all the routes
-//endregion
 
 // this make use of devlopment.
 if (process.env.NODE_ENV === 'development') {
@@ -35,6 +31,7 @@ if (process.env.NODE_ENV === 'development') {
 // api/v1/bootcaamps was the route
 app.use('/api/v1/bootcamps', bootCamps) ///api/v1/bootcamps will be the routes for all the current ones.
 //endregion
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000; //  means either this will run or  the other
 

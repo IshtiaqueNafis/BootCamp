@@ -15,7 +15,7 @@ exports.getBootCamps = async (req, res, next) => {
             data: bootCamps
         });
     } catch (err) {
-        res.status(400).json({success: false})
+        next(err)
     }
 }
 //exports is used for exporting function
@@ -31,7 +31,7 @@ exports.getBootCamp = async (req, res, next) => {
             data: bootCamp
         })
     } catch (err) {
-        res.status(400).json({success: false})
+        next(err)
     }
 }
 //endregion
