@@ -6,8 +6,26 @@ const asyncHandler = require('../middleware/async')
 
 //region getBootCamps() --> get all bootcamps-->@route GET /api/v1/bootcamps-->acess  public
 exports.getBootCamps = asyncHandler(async (req, res, next) => {
+    let query;
+    let queryStr = JSON.stringify(req.query); // req.query is coming from req.query
+    console.log(queryStr)
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+    //region ****queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)****
+    //
+    /*
+    gt--> greather than
+    gte --> greater than equal to
+    lt --> less than
+    lte --> less than or equal to
+    in --> means will get a list
+    match => `$${match} will be either gt,gte,lt,lte in
+     */
 
-    const bootCamps = await Bootcamp.find();
+    //endregion
+    query = Bootcamp.find(JSON.parse(queryStr)); // get the id based on query str
+
+    const bootCamps = await query;
+
 
     res.status(200).json({
         success: true,
@@ -110,3 +128,5 @@ exports.getBootCampsInRadius = asyncHandler(async (req, res, next) => {
 });
 
 //endregion
+
+
