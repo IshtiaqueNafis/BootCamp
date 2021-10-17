@@ -1,13 +1,13 @@
-const mongoose = require('mongoose');
-const slugify = require('slugify')
-const geocoder = require('../utlis/geocoder')
+const mongoose = require('mongoose'); // is for coonecting to database
+const slugify = require('slugify') // used for conenction to slug.
+const geocoder = require('../utlis/geocoder') // used for map geo coder.
 const BootCampSchema = new mongoose.Schema(
     {
         name: {
             type: String,
-            required: [true, 'Please add a name'],
+            required: [true, 'Please add a name'], // first means true and the sceond parameter means something is wrong.
             unique: true,
-            trim: true,
+            trim: true, // remove white space and characters.
             maxlength: [50, 'Name can not be more than 50 characters']
         },
         slug: String,
@@ -21,7 +21,7 @@ const BootCampSchema = new mongoose.Schema(
             match: [
                 /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/,
                 'Please use a valid URL with HTTP or HTTPS'
-            ]
+            ]// this is used for matching.
         },
         phone: {
             type: String,
@@ -100,7 +100,7 @@ const BootCampSchema = new mongoose.Schema(
         }
     }
 )
-//create bootcamp SLug from name
+// pre slug
 BootCampSchema.pre('save', function (next) {
     this.slug = slugify(this.name, {lower: true})
     next();
@@ -120,8 +120,8 @@ BootCampSchema.pre('save', async function (next) {
         country: loc[0].countryCode
     }
     // do not save address
-    this.address = undefined;
+    this.address = undefined; // cause address will be filled out
     next();
 })
 
-module.exports = mongoose.model('Bootcamp', BootCampSchema); // by using
+module.exports = mongoose.model('Bootcamp', BootCampSchema);  // how the model will be named.

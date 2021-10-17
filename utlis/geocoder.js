@@ -1,4 +1,4 @@
-const NodeGeoCoder = require('node-geocoder')
+const NodeGeoCoder = require('node-geocoder'); // this is used for geocoder.
 const dotenv = require('dotenv')
 dotenv.config({ path: '../config/config.env' });
 const options = {
@@ -7,7 +7,7 @@ const options = {
     apiKey: process.env.GEOCODER_API_KEY,
     formatter: null
 }
-console.log(options)
+
 const geocoder = NodeGeoCoder(options);
 
 module.exports = geocoder;

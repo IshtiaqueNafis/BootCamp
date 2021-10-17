@@ -1,5 +1,5 @@
 const ErrorResponse = require('../utlis/errorresponse')
-const Bootcamp = require('../models/BootCamp');
+const Bootcamp = require('../models/BootCampModel');
 const geoCoder = require('../utlis/geoCoder')
 const asyncHandler = require('../middleware/async')
 
@@ -10,18 +10,25 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
 
     //copy req.query
     const reqQuery = {...req.query}; // this will be breaking down.
+    console.log(reqQuery)
 
     //fields to exclude from query
     const removeFields = ['select', 'sort', 'page', 'limit',]; // array will have the following value which is select query.
 
     //Loop over Remove fields and delete them from reqQuery
-    removeFields.forEach(param => delete reqQuery[param]);
+    for (const param of removeFields) {
+        // loops thrrough param if
+        delete reqQuery[param];
+    }
+    console.log(reqQuery)
 
     // loop over reququery if it contains select remove it .
 
 
     //create query string
     let queryStr = JSON.stringify(reqQuery); // req.query is coming from req.query
+    // convert it to JSON file
+    console.log(queryStr)
 
 
     //create Operators ($GT,$ltg)
@@ -43,7 +50,7 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
 
     //finding resource
     query = Bootcamp.find(JSON.parse(queryStr)); // get the id based on query str
-
+   // convert it to javascript object
     //SelectFields
     if (req.query.select) {
         const selectStatement = req.query.select.split(',').join(' '); // if there is a comma turns into an array then combine into string with spaces
@@ -139,10 +146,10 @@ exports.getBootCamp = asyncHandler(async (req, res, next) => {
 exports.createBootCamp = asyncHandler(async (req, res, next) => {
 
 
-    const bootcamp = await Bootcamp.create(req.body); // this creates the bootcamp
+    const bootCamp = await Bootcamp.create(req.body); // this creates the bootcamp
     res.status(201).json({
         success: true,
-        data: bootcamp
+        data: bootCamp
     })
 
 
@@ -154,10 +161,15 @@ exports.createBootCamp = asyncHandler(async (req, res, next) => {
 exports.updateBootCamp = asyncHandler(async (req, res, next) => {
 
 
-    const bootCamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-    });
+    const bootCamp = await Bootcamp.findByIdAndUpdate
+    (
+        req.params.id, // this is the filter
+        req.body, // body will be updated
+        {
+            new: true, // returns new object after it was applied.
+            runValidators: true, // make sure validators are running after.
+        }
+    );
     if (!bootCamp) {
         return next(new ErrorResponse(`BootCamp not found with id of ${req.params.id} `, 400));
 
@@ -188,8 +200,8 @@ exports.deleteBootCamp = asyncHandler(async (req, res, next) => {
 //region getBootcampwithinAradisu --> @route Delete /api/v1/radius/:zipcode:distance -->access  private
 exports.getBootCampsInRadius = asyncHandler(async (req, res, next) => {
 
-    const {zipcode, distance} = req.params;
-    const loc = await geoCoder.geocode(zipcode);
+    const {zipcode, distance} = req.params; // destrure thooese properites.
+    const loc = await geoCoder.geocode(zipcode); // returns an array with lattybe and logtitude,
     const lat = loc[0].latitude;
     const lng = loc[0].longitude;
 
@@ -198,13 +210,26 @@ exports.getBootCampsInRadius = asyncHandler(async (req, res, next) => {
 
     const radius = distance / 3963
 
-    const bootcamps = await Bootcamp.find({
+    const bootCamps = await Bootcamp.find({
         location: {$geoWithin: {$centerSphere: [[lng, lat], radius]}}
+        //region  location: {$geoWithin: {$centerSphere: [[lng, lat], radius]}}
+        /*
+        $geoWithin: { $centerSphere: [ [ <x>, <y> ], <radius> ] }
+         x--> is for lng
+         y--> latitude
+         radius --> is for radius pf the earth
+         */
+
+        //endregion
     })
+    if (!bootCamps) {
+        return next(new ErrorResponse(`no bootcamp Found with in the are `, 400));
+
+    }
     res.status(200).json({
         success: true,
-        count: bootcamps.length,
-        data: bootcamps
+        count: bootCamps.length,
+        data: bootCamps
     })
 });
 
