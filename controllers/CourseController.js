@@ -8,7 +8,14 @@ exports.getCourses = asyncHandler(async(req,res,next)=>{
     if(req.params.bootcampId){
         query = Course.find({bootcamp: req.params.bootcampId});
     }else{
-        query=Course.find() //find everything if the route is not matches
+      // this will return a bootcamp with course with everything
+        // query=Course.find().populate('bootcamp') // this will get the details id for the bootcamp.
+        query=Course.find().populate({
+            path:'bootcamp',
+            select:'name description '
+
+
+        }) // will only show name and description.
     }
 
     const courses = await query;

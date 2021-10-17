@@ -49,8 +49,20 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
 
 
     //finding resource
-    query = Bootcamp.find(JSON.parse(queryStr)); // get the id based on query str
-   // convert it to javascript object
+    query = Bootcamp.find(JSON.parse(queryStr)).populate('courses'); // get the id based on query str
+    //region the path where does it come come from for populate explained
+    /*
+    BootCampSchema.virtual('courses', {
+    ref: 'Course', // this is the course table name
+    localField: '_id', // this will be the id
+    foreignField: 'bootcamp',// this the bootcamp id.
+    justOne: false, // means get array of courses
+})
+     */
+
+    //endregion
+
+    // convert it to javascript object
     //SelectFields
     if (req.query.select) {
         const selectStatement = req.query.select.split(',').join(' '); // if there is a comma turns into an array then combine into string with spaces
@@ -185,10 +197,11 @@ exports.updateBootCamp = asyncHandler(async (req, res, next) => {
 exports.deleteBootCamp = asyncHandler(async (req, res, next) => {
 
 
-    const bootCamp = await Bootcamp.findByIdAndDelete(req.params.id);
+    const bootCamp = await Bootcamp.findById(req.params.id);
     if (!bootCamp) {
         return next(new ErrorResponse(`BootCamp not found with id of ${req.params.id} `, 400));
     }
+    bootCamp.remove(); // this will trigger the rmove file object..
     res.status(200).json({success: true, data: {}})
 
 
