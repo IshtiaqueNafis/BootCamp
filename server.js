@@ -16,7 +16,6 @@ const app = express(); // express is the router.
 app.use(express.json())
 
 
-
 // this make use of devlopment.
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'))
@@ -24,9 +23,12 @@ if (process.env.NODE_ENV === 'development') {
 
 //setting up routes
 const bootCamps = require('./routes/bootcamp'); // this hold
+const courses = require('./routes/courseRoutes');
 
 app.use('/api/v1/bootcamps', bootCamps) ///api/v1/bootcamps will be the routes for all the current ones.
+app.use('/api/v1/courses', courses);
 //endregion
+
 app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000; //  means either this will run or  the other

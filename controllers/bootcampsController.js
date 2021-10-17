@@ -6,20 +6,19 @@ const asyncHandler = require('../middleware/async')
 
 //region getBootCamps() --> get all bootcamps-->@route GET /api/v1/bootcamps-->acess  public
 exports.getBootCamps = asyncHandler(async (req, res, next) => {
-    let query;
-
+    let query; // this the query
 
     //copy req.query
-    const reqQuery = {...req.query}
+    const reqQuery = {...req.query}; // this will be breaking down.
 
-    //fileds to exclude
+    //fields to exclude from query
     const removeFields = ['select', 'sort', 'page', 'limit',]; // array will have the following value which is select query.
 
     //Loop over Remove fields and delete them from reqQuery
     removeFields.forEach(param => delete reqQuery[param]);
+
     // loop over reququery if it contains select remove it .
 
-    console.log(reqQuery)
 
     //create query string
     let queryStr = JSON.stringify(reqQuery); // req.query is coming from req.query
@@ -47,14 +46,14 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
 
     //SelectFields
     if (req.query.select) {
-        const sortBy = req.query.select.split(',').join(' ') // if there is a comma turns into an array then combine into string with spaces
-        query = query.select(sortBy) // if a name is here it will only pass thoose things.
+        const selectStatement = req.query.select.split(',').join(' '); // if there is a comma turns into an array then combine into string with spaces
+        query = query.select(selectStatement); // if a name is here it will only pass thoose things.
     }
 
     //sorting
     if (req.query.sort) {
-        const sortBy = req.query.sort.split(',').join(' ') // if there is a comma turns into an array then combine into string with spaces
-        query = query.sort(sortBy) // if a name is here it will only pass thoose things.
+        const sortBy = req.query.sort.split(',').join(' '); // if there is a comma turns into an array then combine into string with spaces
+        query = query.sort(sortBy); // if a name is here it will only pass thoose things.
     } else {
         query = query.sort('-createdAt'); //- means in decendinbg order
     }
@@ -90,6 +89,7 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
 
     //pagination Result
 
+    // for going foroward
     const pagination = {};
     if (endIndex < total) {
         pagination.next = {
@@ -99,6 +99,7 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
         //crates a nested object // { next: { page: 2 } }
     }
 
+    //for going backward
     if (startIndex > 0) {
         pagination.prev = {
             page: page - 1,
@@ -106,17 +107,15 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
         }
     }
 
-    console.log(pagination)
 
     res.status(200).json({
-        success: true,
-        count: bootCamps.length,
-        data: bootCamps,
-        pagination
+        success: true, //means true
+        count: bootCamps.length, // how many were recived
+        data: bootCamps, // data for bootcamps.
+        pagination // pagination object,
     });
 });
 
-//exports is used for exporting function
 //endregion
 
 

@@ -8,7 +8,16 @@ const {
     createBootCamp,
     updateBootCamp,
     getBootCampsInRadius
-} = require('../controllers/bootcamps') // exporting all the functions.
+} = require('../controllers/bootcampsController') // exporting all the functions.
+
+//region Reroute into Other Resources
+const courseRouter = require('./courseRoutes');
+router.use('/:bootcampId/courses', courseRouter);
+// check if there is a bootcampid followed by courses then move it to course Router.
+
+//endregion
+
+
 //endregion
 router.route('/radius/:zipcode/:distance')
     .get(getBootCampsInRadius)
