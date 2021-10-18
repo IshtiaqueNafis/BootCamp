@@ -1,3 +1,4 @@
+const path = require('path')
 const ErrorResponse = require('../utlis/errorresponse')
 const Bootcamp = require('../models/BootCampModel');
 const geoCoder = require('../utlis/geoCoder')
@@ -249,3 +250,51 @@ exports.getBootCampsInRadius = asyncHandler(async (req, res, next) => {
 //endregion
 
 
+//region FILE UPLOAD For BOOTCAMP PUT/API/v1/bootcamps:id/photo/ acess:private
+exports.bootcampPhotoUpload = asyncHandler(async (req, res, next) => {
+    const bootcamp = await Bootcamp.findById(req.params.id); // this the bootcamp ID // get the bootcamp Based on Id
+
+
+    if (!bootcamp) {
+        return next(
+            new ErrorResponse(`BootCamp not found with the id of ${req.params.id}`, 404)
+        );
+    }
+
+    if (!req.files) {
+        return next(
+            new ErrorResponse(`Please Upload a file`, 400)
+        );
+    }
+
+    const { file} = {...req.files} // get file from req.files.
+ //checks if its a image or not
+    if (!file.mimetype.startsWith('image')) {
+        return next(new ErrorResponse(`Please Upload an image file`, 400));
+    }
+//check file size
+    if (file.size > process.env.MAX_FILE_UPLOAD) {
+        return next(new ErrorResponse(`please upload an image less than ${process.env.MAX_FILE_UPLOAD}MB`, 400));
+    }
+
+
+    //create file name for the property
+    file.name = `Photo_${bootcamp._id}${path.parse(file.name).ext}`; // get the file name with exrension
+    // file mv is a function
+    await file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async error => {
+        if (error) {
+            return next(new ErrorResponse(`something went wrong`, 500))
+        }
+        await Bootcamp.findByIdAndUpdate(req.params.id, {photo: file.name});
+
+        res.status(200).json(
+            {
+                success: true,
+                data: file.name
+            })
+    })
+
+})
+
+
+//endregion
