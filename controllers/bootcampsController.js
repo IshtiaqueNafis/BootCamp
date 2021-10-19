@@ -3,7 +3,7 @@ const ErrorResponse = require('../utlis/errorresponse')
 const Bootcamp = require('../models/BootCampModel');
 const geoCoder = require('../utlis/geoCoder')
 const asyncHandler = require('../middleware/async')
-const advancedResults = require("../middleware/advancedResult");
+
 
 
 //region getBootCamps() --> get all bootcamps-->@route GET /api/v1/bootcamps-->acess  public

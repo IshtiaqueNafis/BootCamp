@@ -31,11 +31,12 @@ app.use(express.static(path.join(__dirname,'public')))
 //getting routes
 const bootCamps = require('./routes/bootCampRoutes'); // this hold
 const courses = require('./routes/courseRoutes');
-
+const auth = require('./routes/AuthRoutes');
 //setting routes
 
 app.use('/api/v1/bootcamps', bootCamps)
 app.use('/api/v1/courses', courses);
+app.use('/api/v1/auth', auth);
 
 //handles error
 app.use(errorHandler)
