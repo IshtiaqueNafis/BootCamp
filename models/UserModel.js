@@ -37,12 +37,20 @@ const UserSchema = new mongoose.Schema({
 
 
 });
+
+
 // encropt password using bcrypt
 UserSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10); // create salt with the base of 10
     this.password = await bcrypt.hash(this.password, salt); // created hash password
 
 });
+//Match User Entered password to hash password
+UserSchema.methods.matchPassword = function (enteredPassword) {
+    return bcrypt.compare(enteredPassword, this.password);
+};
+
+
 // sign JWT and return
 UserSchema.methods.getSingedJWTTOKEN = function () {
     // means object created from the schema will be able to use this class.
