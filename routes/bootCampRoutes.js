@@ -10,7 +10,8 @@ const {
     getBootCampsInRadius,
     bootcampPhotoUpload,
 } = require('../controllers/bootcampsController') // exporting all the functions.
-
+const Bootcamp = require('../models/BootCampModel');
+const advancedResults = require('../middleware/advancedResult'); // advanced results qeury
 //exporting the routes from course routes
 const courseRouter = require('./courseRoutes');
 
@@ -18,7 +19,7 @@ const courseRouter = require('./courseRoutes');
 router.use('/:bootcampId/courses', courseRouter);
 
 router.route('/')
-    .get(getBootCamps) // this will be for getting all the bootcamps
+    .get(advancedResults(Bootcamp,'courses'), getBootCamps) // this will be for getting all the bootcamps
     .post(createBootCamp) // post is for creating bootcapms
 
 
