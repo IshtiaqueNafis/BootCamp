@@ -15,8 +15,10 @@ const {name,email,password,role} = req.body
   role
  })
 
+ const token = user.getSingedJWTTOKEN(); // create user token
  res.status(200).json({
   success:true,
+  token
 
  })
 
