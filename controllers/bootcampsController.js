@@ -5,7 +5,6 @@ const geoCoder = require('../utlis/geoCoder')
 const asyncHandler = require('../middleware/async')
 
 
-
 //region getBootCamps() --> get all bootcamps-->@route GET /api/v1/bootcamps-->acess  public
 exports.getBootCamps = asyncHandler(async (req, res, next) => {
 
@@ -34,6 +33,17 @@ exports.getBootCamp = asyncHandler(async (req, res, next) => {
 
 //region createBootCamp  -->  reate single bootcamp --> route POST /api/v1/bootcamps/:id -->/ acess  private
 exports.createBootCamp = asyncHandler(async (req, res, next) => {
+//add user to body
+    req.body.user = req.user; // this coming from bearer token user.
+
+    // check if the user is authorized to create bootcamp
+    const publishedBootcamp = await Bootcamp.findOne({user: req.user.id}); // find all the bootcamp by the user
+
+    //if the user is not a admin
+    if (publishedBootcamp && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`User with Id already published a bootcamp `, 400));
+
+    }
 
 
     const bootCamp = await Bootcamp.create(req.body); // this creates the bootcamp
@@ -144,8 +154,8 @@ exports.bootcampPhotoUpload = asyncHandler(async (req, res, next) => {
         );
     }
 
-    const { file} = {...req.files} // get file from req.files.
- //checks if its a image or not
+    const {file} = {...req.files} // get file from req.files.
+    //checks if its a image or not
     if (!file.mimetype.startsWith('image')) {
         return next(new ErrorResponse(`Please Upload an image file`, 400));
     }
