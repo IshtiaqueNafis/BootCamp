@@ -44,14 +44,19 @@ exports.getCourse = asyncHandler(async (req, res, next) => {
 //region Create course  --> get course based on Id-->@route GET /api/v1/courses
 
 exports.addCourse = asyncHandler(async (req, res, next) => {
+    req.body.bootcamp = req.params.bootcampId; // from there get first set
     const bootCamp = await BootCamp.findById(req.params.bootcampId); //first get bootcamp based on ID
+    req.body.user = req.user.id;
     if (!bootCamp) {
         return next(
             new ErrorResponse(`No Bootcamp with Id of ${req.params.bootcampId}`)
         )
     }
-    req.body.bootcamp = req.params.bootcampId; // from there get first set
 
+    if (bootCamp.user.toString() !== req.user.id && req.user !== 'admin') {
+        //user is saved on the looged in when a user logged in
+        return next(new ErrorResponse(`user can not modify ${req.user.id} this course `, 401));
+    }
 
     const course = await Course.create(req.body);
 
@@ -72,6 +77,11 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
     if (!course) {
         return next(new ErrorResponse(`no Course with the id ${req.params.id}`, 404))
     }
+    if (course.user.toString() !== req.user.id && req.user !== 'admin') {
+        //user is saved on the looged in when a user logged in
+        return next(new ErrorResponse(`user can not modify ${req.user.id} this course `, 401));
+    }
+
     course = await Course.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
@@ -91,6 +101,10 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
     const course = await Course.findById(req.params.id);
     if (!course) {
         return next(new ErrorResponse(`no Course with the id ${req.params.id}`, 404))
+    }
+    if (course.user.toString() !== req.user.id && req.user !== 'admin') {
+        //user is saved on the looged in when a user logged in
+        return next(new ErrorResponse(`user can not modify ${req.user.id} this course `, 401));
     }
     await course.remove();
     res.status(200).json({

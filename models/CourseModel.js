@@ -35,6 +35,10 @@ const CourseSchema = new mongoose.Schema({
         ref: 'Bootcamp',
         required: true
 
+    }, user: {
+        type: mongoose.Schema.ObjectId, // this means this will be the foregin key
+        ref: 'User',
+        required: true
     }
 
 
@@ -79,13 +83,13 @@ CourseSchema.statics.getAverageCost = async function (bootcampId) {
 //call average cost after save // this is post cause save is calculated after update
 CourseSchema.post('save', function () {
 
-    this.constructor.getAverageCost(this.bootcamp) //$match: {bootcamp: bootcampId} bootcamp is coming from here
+    this.constructor.getAverageCost(this.bootcamp); //$match: {bootcamp: bootcampId} bootcamp is coming from here
 })
 
 //remove calculation after removing item.
 CourseSchema.pre('remove', function () {
 
-    this.constructor.getAverageCost(this.bootcamp) ////$match: {bootcamp: bootcampId} bootcamp is coming from here
+    this.constructor.getAverageCost(this.bootcamp); ////$match: {bootcamp: bootcampId} bootcamp is coming from here
 })
 
 
