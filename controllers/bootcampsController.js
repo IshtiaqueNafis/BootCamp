@@ -34,7 +34,7 @@ exports.getBootCamp = asyncHandler(async (req, res, next) => {
 //region createBootCamp  -->  reate single bootcamp --> route POST /api/v1/bootcamps/:id -->/ acess  private
 exports.createBootCamp = asyncHandler(async (req, res, next) => {
 //add user to body
-    req.body.user = req.user; // this coming from bearer token user.
+    req.body.user = req.user.id; // this coming from bearer token user.
 
     // check if the user is authorized to create bootcamp
     const publishedBootcamp = await Bootcamp.findOne({user: req.user.id}); // find all the bootcamp by the user
@@ -61,19 +61,23 @@ exports.createBootCamp = asyncHandler(async (req, res, next) => {
 exports.updateBootCamp = asyncHandler(async (req, res, next) => {
 
 
-    const bootCamp = await Bootcamp.findByIdAndUpdate
-    (
-        req.params.id, // this is the filter
-        req.body, // body will be updated
-        {
-            new: true, // returns new object after it was applied.
-            runValidators: true, // make sure validators are running after.
-        }
-    );
+    let bootCamp = await Bootcamp.findById(req.params.id);// find by id of bootcamp
+
     if (!bootCamp) {
         return next(new ErrorResponse(`BootCamp not found with id of ${req.params.id} `, 400));
 
     }
+
+    //make sure looged in user is bootcamp Owner.
+    if (bootCamp.user.toString() !== req.user.id && req.user !== 'admin') {
+        //user is saved on the looged in when a user logged in
+        return next(new ErrorResponse(`user can not modify ${req.params.id} of bootcamp `, 401));
+    }
+    bootCamp = await Bootcamp.findOneAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+    })
+
     res.status(200).json({success: true, data: bootCamp});
 
 
@@ -86,8 +90,15 @@ exports.deleteBootCamp = asyncHandler(async (req, res, next) => {
 
 
     const bootCamp = await Bootcamp.findById(req.params.id);
+
+
     if (!bootCamp) {
         return next(new ErrorResponse(`BootCamp not found with id of ${req.params.id} `, 400));
+    }
+
+    if (bootCamp.user.toString() !== req.user.id && req.user !== 'admin') {
+        //user is saved on the looged in when a user logged in
+        return next(new ErrorResponse(`user can not modify ${req.params.id} of bootcamp `, 401));
     }
     bootCamp.remove(); // this will trigger the rmove file object..
     res.status(200).json({success: true, data: {}})
@@ -146,6 +157,11 @@ exports.bootcampPhotoUpload = asyncHandler(async (req, res, next) => {
         return next(
             new ErrorResponse(`BootCamp not found with the id of ${req.params.id}`, 404)
         );
+    }
+
+    if (bootcamp.user.toString() !== req.user.id && req.user !== 'admin') {
+        //user is saved on the looged in when a user logged in
+        return next(new ErrorResponse(`user can not modify ${req.params.id} of bootcamp `, 401));
     }
 
     if (!req.files) {
