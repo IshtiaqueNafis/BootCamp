@@ -28,3 +28,17 @@ exports.protect = asyncHandler(async (req, res, next) => {
     }
 })
 //endregion
+
+//region grant acees to specific roles
+exports.authorized = (...roles) =>{
+    return (req,res,next)=>{
+        if(!roles.includes(req.user.role)){
+            return next(new ErrorResponse(`User Role ${req.user.role} is not authorized to access`, 403)); // if not just return next
+        }
+        next();
+    }
+}
+
+
+
+//endregion

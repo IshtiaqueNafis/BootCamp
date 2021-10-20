@@ -5,7 +5,7 @@ const User = require('../models/UserModel');
 //region  register User--> get all bootcamps-->@route GET /api/v1/register -->acess  public
 exports.register = asyncHandler(async (req, res, next) => {
 
-    const {name, email, password, role} = req.body
+    const {name, email, password, role} = req.body;
 
     //create user
     const user = await User.create({
@@ -13,7 +13,7 @@ exports.register = asyncHandler(async (req, res, next) => {
         email,
         password,
         role
-    })
+    });
 
     sendTokenResponse(user, 200, res);
 
