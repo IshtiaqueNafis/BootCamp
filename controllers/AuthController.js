@@ -15,12 +15,7 @@ exports.register = asyncHandler(async (req, res, next) => {
         role
     })
 
-    const token = user.getSingedJWTTOKEN(); // create user token
-    res.status(200).json({
-        success: true,
-        token
-
-    })
+    sendTokenResponse(user, 200, res);
 
 })
 
@@ -50,13 +45,30 @@ exports.login = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Invalid credentials', 401)); // 401 means unauthorized
     }
 
-    const token = user.getSingedJWTTOKEN(); // create user token
-    res.status(200).json({
-        success: true,
-        token
-
-    })
+    sendTokenResponse(user, 200, res);
 
 });
 
 //endregion
+
+//get token from the model and create cookie and send response -->
+const sendTokenResponse = (user, statusCode, res) => {
+    //create token
+    const token = user.getSingedJWTTOKEN();
+
+    const options = {
+        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+        httpOnly: true, //this make sure only client can acess it.
+
+    };
+    if (process.env.NODE_ENV === 'production') {
+        options.secure = true;
+    }
+    res.status(statusCode)
+        .cookie('token', token, options)
+        .json({
+            success: true,
+            token
+        })
+
+}

@@ -4,6 +4,7 @@ const dotenv = require("dotenv"); // this for dotNev
 const morgan = require('morgan'); // this is the logger
 const path = require('path');
 const fileUpload = require('express-fileupload')
+const cookieParser = require('cookie-parser');
 const errorHandler = require('./middleware/error')
 
 dotenv.config({path: './config/config.env'}); /// this where the config is saved
@@ -16,6 +17,7 @@ connectDB()
 const app = express(); // express is the router.
 app.use(express.json()) // this make sure data comes in json format
 
+app.use(cookieParser());
 
 // this make use of devlopment.
 if (process.env.NODE_ENV === 'development') {
