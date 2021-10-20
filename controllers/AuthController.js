@@ -51,7 +51,9 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 //endregion
 
-//get token from the model and create cookie and send response -->
+
+//region  get token from the model and create cookie and send response
+
 const sendTokenResponse = (user, statusCode, res) => {
     //create token
     const token = user.getSingedJWTTOKEN();
@@ -71,4 +73,19 @@ const sendTokenResponse = (user, statusCode, res) => {
             token
         })
 
-}
+};
+
+//endregion
+
+//region get Current Logged In User,POST /API/v1/auth/me private
+exports.getMe = asyncHandler(async (req, res, next) => {
+    const user = await User.findById(req.user.id); // this comes from the request
+
+    res.status(200).json({
+        success: true,
+        data: user,
+    })
+});
+
+
+//endregion
