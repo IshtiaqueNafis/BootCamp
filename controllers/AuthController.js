@@ -3,7 +3,7 @@ const asyncHandler = require('../middleware/async');
 const sendEmail = require('../utlis/sendEmail');
 const User = require('../models/UserModel');
 const {sendTokenResponse} = require("../middleware/auth");
-
+const crypto = require('crypto');
 //region  register User--> get all bootcamps-->@route GET /api/v1/register -->acess  public
 exports.register = asyncHandler(async (req, res, next) => {
 
@@ -79,7 +79,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     const resetToken = user.getResetPasswordToken(); // get the reset token
     await user.save({validateBeforeSave: false}); // prevents saving
 
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/resetpassword/${resetToken}`; // sent url for reset
+    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/auth/resetpassword/${resetToken}`; // sent url for reset
 
     const message = `you  requested reset email password ${resetUrl}` // then the message
     try {
@@ -98,6 +98,27 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     }
 
 });
+
+
+//endregion
+
+//region resetPassword PUT request private --> PUT and RESET PASSWORD --> /api/auth/resetpassword/:ResetToken -->public
+exports.resetPassword = asyncHandler(async (req, res, next) => {
+    const resetPasswordToken = crypto.createHash('sha256').update(req.params.resettoken).digest('hex');
+    const user = await User.findOne({
+        resetPasswordToken,
+        resetPasswordDate: {$gt: Date.now()}// means greater than now.
+    });
+    if (!user) {
+        return next(new ErrorResponse(`Invalid Token`, 400));
+    }
+    //set new passwrod
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined
+    user.resetPasswordDate = undefined
+    await user.save();
+    sendTokenResponse(user, 200, res);
+})
 
 
 //endregion
