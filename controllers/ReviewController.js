@@ -61,3 +61,56 @@ exports.addReview = asyncHandler(async (req, res, next) => {
 
 
 //end region
+
+//region add a review -->PUT --> /api/v1//reviews:/id
+exports.updateReview = asyncHandler(async (req, res, next) => {
+
+
+    let review = await Review.findById(req.params.id)
+    if (!review) {
+        return next(new ErrorResponse(`No review found`, 404))
+    }
+//make sure review belongs to user or admin
+    if (review.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`Not Authorized`, 401))
+    }
+    review = await Review.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+    });
+
+    res.status(201).json({
+        success: true,
+        data: review
+    })
+})
+
+
+//endregion
+
+//region DELETE REVIEW /api/v1//reviews:/id
+
+exports.deleteReview = asyncHandler(async (req, res, next) => {
+
+
+    let review = await Review.findById(req.params.id)
+    if (!review) {
+        return next(new ErrorResponse(`No review found`, 404))
+    }
+//make sure review belongs to user or admin
+    if (review.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`Not Authorized`, 401))
+    }
+    await review.remove()
+
+    res.status(201).json({
+        success: true,
+        data: {}
+
+    })
+})
+
+//endregion
+
+
+//endregion
