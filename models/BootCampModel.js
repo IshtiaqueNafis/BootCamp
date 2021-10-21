@@ -99,8 +99,8 @@ const BootCampSchema = new mongoose.Schema(
             default: Date.now
         },
         user: {
-            type:mongoose.Schema.ObjectId,
-            ref:'User',
+            type: mongoose.Schema.ObjectId,
+            ref: 'User',
             required: true
         }
     }, {
@@ -115,7 +115,7 @@ BootCampSchema.pre('save', function (next) {
 })
 //GeoCode & create location field
 //pre means before its saved to database
-BootCampSchema.pre('save', async function (next) {
+BootCampSchema.post('save', async function (next) {
     const loc = await geocoder.geocode(this.address); // this gets an address
     this.location = {
         type: "Point",
