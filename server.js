@@ -34,11 +34,14 @@ app.use(express.static(path.join(__dirname,'public')))
 const bootCamps = require('./routes/bootCampRoutes'); // this hold
 const courses = require('./routes/courseRoutes');
 const auth = require('./routes/AuthRoutes');
+const users = require('./routes/UserRoutes');
 //setting routes
 
 app.use('/api/v1/bootcamps', bootCamps)
 app.use('/api/v1/courses', courses);
 app.use('/api/v1/auth', auth);
+app.use('/api/v1/users', users);
+
 
 //handles error
 app.use(errorHandler)
