@@ -6,7 +6,7 @@ const asyncHandler = require('../middleware/async')
 //region getcoursess() --> get all bootcamps-->@route GET /api/v1/:bootcampId/courses
 exports.getCourses = asyncHandler(async (req, res, next) => {
 
-    if (req.params.bookcampId) {
+    if (req.params.bootcampId) {
         const courses = await Course.find({bootcamp: req.params.bootcampId})
         return res.status(200).json({
             success: true,
