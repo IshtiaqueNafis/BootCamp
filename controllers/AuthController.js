@@ -1,6 +1,8 @@
 const ErrorResponse = require('../utlis/errorresponse');
 const asyncHandler = require('../middleware/async');
+const sendEmail = require('../utlis/sendEmail');
 const User = require('../models/UserModel');
+const {sendTokenResponse} = require("../middleware/auth");
 
 //region  register User--> get all bootcamps-->@route GET /api/v1/register -->acess  public
 exports.register = asyncHandler(async (req, res, next) => {
@@ -52,31 +54,6 @@ exports.login = asyncHandler(async (req, res, next) => {
 //endregion
 
 
-//region  get token from the model and create cookie and send response
-
-const sendTokenResponse = (user, statusCode, res) => {
-    //create token
-    const token = user.getSingedJWTTOKEN();
-
-    const options = {
-        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
-        httpOnly: true, //this make sure only client can acess it.
-
-    };
-    if (process.env.NODE_ENV === 'production') {
-        options.secure = true;
-    }
-    res.status(statusCode)
-        .cookie('token', token, options)
-        .json({
-            success: true,
-            token
-        })
-
-};
-
-//endregion
-
 //region get Current Logged In User,POST /API/v1/auth/me private
 exports.getMe = asyncHandler(async (req, res, next) => {
     const user = await User.findById(req.user.id); // this comes from the request
@@ -85,6 +62,41 @@ exports.getMe = asyncHandler(async (req, res, next) => {
         success: true,
         data: user,
     })
+});
+
+
+//endregion
+
+//region ForgotPassword User,POST /API/v1/auth/me private
+exports.forgotPassword = asyncHandler(async (req, res, next) => {
+    const user = await User.findOne({email: req.body.email}); // look for user based on email .
+    //req.body.email comes from here this will help with the password reset. 
+
+    if (!user) {
+        return next(new ErrorResponse(`there is no user with that email `, 404))
+    } // if user not found return this error.
+    //create reset URL
+    const resetToken = user.getResetPasswordToken(); // get the reset token
+    await user.save({validateBeforeSave: false}); // prevents saving
+
+    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/resetpassword/${resetToken}`; // sent url for reset
+
+    const message = `you  requested reset email password ${resetUrl}` // then the message
+    try {
+        await sendEmail({
+            email: user.email,
+            subject: 'password reset token',
+            message
+        });
+        res.status(200).json({success: true, data: 'Email sent'});
+    } catch (error) {
+        console.log(error)
+        user.resetPasswordToken = undefined;
+        user.resetPasswordDate = undefined;
+        await user.save({validateBeforeSave: false});
+        return next(new ErrorResponse(`email could be sent`, 500));
+    }
+
 });
 
 

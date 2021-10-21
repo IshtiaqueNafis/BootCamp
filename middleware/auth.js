@@ -30,15 +30,38 @@ exports.protect = asyncHandler(async (req, res, next) => {
 //endregion
 
 //region grant acees to specific roles
-exports.authorized = (...roles) =>{
-    return (req,res,next)=>{
-        if(!roles.includes(req.user.role)){
+exports.authorized = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
             return next(new ErrorResponse(`User Role ${req.user.role} is not authorized to access`, 403)); // if not just return next
         }
         next();
     }
 }
 
+//endregion
 
+//region  get token from the model and create cookie and send response
+
+exports.sendTokenResponse = (user, statusCode, res) => {
+    //create token
+    const token = user.getSingedJWTTOKEN();
+
+    const options = {
+        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+        httpOnly: true, //this make sure only client can acess it.
+
+    };
+    if (process.env.NODE_ENV === 'production') {
+        options.secure = true;
+    }
+    res.status(statusCode)
+        .cookie('token', token, options)
+        .json({
+            success: true,
+            token
+        })
+
+};
 
 //endregion
