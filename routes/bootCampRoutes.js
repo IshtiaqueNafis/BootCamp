@@ -14,9 +14,11 @@ const Bootcamp = require('../models/BootCampModel');
 const advancedResults = require('../middleware/advancedResult'); // advanced results qeury
 //exporting the routes from course routes
 const courseRouter = require('./courseRoutes');
+const reviewRouter = require('./ReviewRoutes')
 const {protect,authorized} = require('../middleware/auth');
 // for generic course router this will be followed.
 router.use('/:bootcampId/courses', courseRouter);
+router.use('/:bootcampId/reviews', reviewRouter);
 
 router.route('/')
     .get(advancedResults(Bootcamp, 'courses'), getBootCamps) // this will be for getting all the bootcamps
