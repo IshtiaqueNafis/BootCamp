@@ -161,3 +161,20 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
 
 
 //endregion
+
+//region LOG USER OUT/clear Cookie  In User,GET /API/v1/auth/logout private
+exports.logout = asyncHandler(async (req, res, next) => {
+    res.cookie('token', 'none', {
+        //cookie comes from the res as due to middle ware cookie has acess to it.
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true
+    })
+
+    res.status(200).json({
+        success: true,
+        data: {}
+    })
+});
+
+
+//endregion

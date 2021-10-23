@@ -11,10 +11,11 @@ exports.protect = asyncHandler(async (req, res, next) => {
         && req.headers.authorization.startsWith('Bearer') // checks if it has bearer
     ) {
         token = req.headers.authorization.split(' ')[1]; // get the token from there
-    }/* else if (req.cookies) {
+    }
+     else if (req.cookies) {
         token = req.cookies.token;
     }
-*/
+
     if (!token) {
         return next(new ErrorResponse(`Not authorized to Access this Route`, 401)); // if there is no token means it wont work.
     }
