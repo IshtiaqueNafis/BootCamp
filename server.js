@@ -5,6 +5,7 @@ const morgan = require('morgan'); // this is the logger
 const path = require('path');
 const fileUpload = require('express-fileupload')
 const cookieParser = require('cookie-parser');
+const mongoSanitize = require('express-mongo-sanitize');
 const errorHandler = require('./middleware/error')
 
 dotenv.config({path: './config/config.env'}); /// this where the config is saved
@@ -26,6 +27,7 @@ if (process.env.NODE_ENV === 'development') {
 
 //fileupload middle ware
 app.use(fileUpload())
+app.use(mongoSanitize()); /* this prevents security issues */
 
 //
 app.use(express.static(path.join(__dirname,'public')))
