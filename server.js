@@ -6,6 +6,8 @@ const path = require('path');
 const fileUpload = require('express-fileupload')
 const cookieParser = require('cookie-parser');
 const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
+const xss = require('xss-clean');
 const errorHandler = require('./middleware/error')
 
 dotenv.config({path: './config/config.env'}); /// this where the config is saved
@@ -28,9 +30,10 @@ if (process.env.NODE_ENV === 'development') {
 //fileupload middle ware
 app.use(fileUpload())
 app.use(mongoSanitize()); /* this prevents security issues */
-
-//
-app.use(express.static(path.join(__dirname,'public')))
+app.use(helmet()); // set security headers
+//prevent xss Attacks
+app.use(xss()); // prevents xss attacks.
+app.use(express.static(path.join(__dirname, 'public')))
 
 //getting routes
 const bootCamps = require('./routes/bootCampRoutes'); // this hold
