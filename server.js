@@ -8,6 +8,9 @@ const cookieParser = require('cookie-parser');
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 const xss = require('xss-clean');
+const rateLimit = require('express-rate-limit');
+const hpp = require('hpp');
+const cors = require('cors');
 const errorHandler = require('./middleware/error')
 
 dotenv.config({path: './config/config.env'}); /// this where the config is saved
@@ -33,6 +36,12 @@ app.use(mongoSanitize()); /* this prevents security issues */
 app.use(helmet()); // set security headers
 //prevent xss Attacks
 app.use(xss()); // prevents xss attacks.
+const limiter = rateLimit({
+    windowMs: 10 * 60 * 1000, // maximum 10 mins for request.
+    max: 100
+});
+app.use(limiter);
+app.use(hpp()); // prevents http param poplution.
 app.use(express.static(path.join(__dirname, 'public')))
 
 //getting routes
@@ -48,7 +57,7 @@ app.use('/api/v1/courses', courses);
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/users', users);
 app.use('/api/v1/reviews', reviews);
-
+app.use(cors());
 
 //handles error
 app.use(errorHandler)
